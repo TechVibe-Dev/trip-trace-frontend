@@ -24,3 +24,16 @@ export interface Trip {
   created_at: string
   updated_at: string
 }
+
+// Mirrors the API's TripSegmentRead (GET /trips/{id}/segments) — slow/fast
+// segments computed on the fly from the trip's GPS points.
+export interface TripSegment {
+  segment_type: 'SLOW' | 'NORMAL' | 'FAST'
+  start_lat: number
+  start_lng: number
+  end_lat: number
+  end_lng: number
+  start_time: string
+  end_time: string
+  avg_speed: number
+}
