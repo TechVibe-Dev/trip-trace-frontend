@@ -3,7 +3,8 @@ import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
-import { HistoryPage } from './pages/HistoryPage'
+import { TripsPage } from './pages/TripsPage'
+import { TripDetailPage } from './pages/TripDetailPage'
 
 function App() {
   return (
@@ -20,10 +21,18 @@ function App() {
             }
           />
           <Route
-            path="/historial"
+            path="/viajes"
             element={
               <ProtectedRoute>
-                <HistoryPage />
+                <TripsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/viajes/:tripId"
+            element={
+              <ProtectedRoute>
+                <TripDetailPage />
               </ProtectedRoute>
             }
           />
