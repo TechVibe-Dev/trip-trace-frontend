@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 
 const navItems = [
   { to: '/', label: 'Dashboard' },
-  { to: '/historial', label: 'Historial' },
+  { to: '/viajes', label: 'Viajes' },
 ]
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -17,19 +17,27 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-8">
           <span className="text-lg font-medium text-primary">TripTrace</span>
           <nav className="flex gap-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={
-                  location.pathname === item.to
-                    ? 'text-sm font-medium text-primary'
-                    : 'text-sm text-on-surface-variant hover:text-on-surface'
-                }
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              // "/viajes" stays highlighted on the trip detail page too
+              // (/viajes/:id), not just on an exact path match.
+              const isActive =
+                item.to === '/'
+                  ? location.pathname === '/'
+                  : location.pathname.startsWith(item.to)
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={
+                    isActive
+                      ? 'text-sm font-medium text-primary'
+                      : 'text-sm text-on-surface-variant hover:text-on-surface'
+                  }
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
           </nav>
         </div>
         <button
