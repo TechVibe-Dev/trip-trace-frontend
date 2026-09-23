@@ -9,6 +9,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Added a CI workflow that runs `npm ci` and `npm run build` (type-check + production build) on push/PR. ([#2](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/2))
+- Configured Dependabot (npm + github-actions), monthly. ([#2](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/2))
 - Initial React + TypeScript + Vite scaffold, with Tailwind CSS matching the Android app's dark color palette.
 - Login page against `trip-trace-api` (JWT stored in `localStorage`).
 - Dashboard page: stats across all trips (total, completed, distance, avg speed) and a distance-per-trip bar chart (Recharts) for the last 10 completed trips.
