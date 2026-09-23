@@ -15,13 +15,18 @@ React + TypeScript + Vite, con Tailwind CSS. Mismo esquema de colores oscuro que
 
 ## Setup
 
+Requiere [Node.js](https://nodejs.org/) instalado (18 o más nuevo).
+
 ```bash
-npm install
-cp .env.default .env
-npm run dev
+chmod +x start_dev.sh   # una sola vez
+./start_dev.sh
 ```
 
-`.env` solo necesita `VITE_API_BASE_URL` si querés apuntar a otra cosa que no sea la API en producción (por ejemplo, una instancia corriendo local).
+`start_dev.sh` crea el `.env` (copiando `.env.default`) si no existe, instala las dependencias si no están (`node_modules`), y levanta el servidor de desarrollo de Vite. Te va a mostrar algo como `Local: http://localhost:5173/` — abrí esa URL en el navegador. Con eso ya podés loguearte con el mismo usuario que usás en la app Android.
+
+`.env` solo hace falta tocarlo si querés que `VITE_API_BASE_URL` apunte a otra cosa que no sea la API en producción (por ejemplo, una instancia corriendo local).
+
+Para correrlo a mano en vez de usar el script: `npm install` y después `npm run dev`.
 
 ## Estructura
 
