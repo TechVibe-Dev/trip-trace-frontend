@@ -1,0 +1,19 @@
+import { API_BASE_URL, apiFetch } from './client'
+import type { Trip, TripSegment } from '../types/trip'
+
+export function listTrips(token: string, statusFilter?: string): Promise<Trip[]> {
+  const query = statusFilter ? `?status_filter=${statusFilter}` : ''
+  return apiFetch<Trip[]>(`/api/v1/trips${query}`, {}, token)
+}
+
+export function getTrip(token: string, tripId: string): Promise<Trip> {
+  return apiFetch<Trip>(`/api/v1/trips/${tripId}`, {}, token)
+}
+
+export function getTripSegments(token: string, tripId: string): Promise<TripSegment[]> {
+  return apiFetch<TripSegment[]>(`/api/v1/trips/${tripId}/segments`, {}, token)
+}
+
+// Re-exported so pages that only need trips.ts don't also have to import
+// from client.ts directly.
+export { API_BASE_URL }
