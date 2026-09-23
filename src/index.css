@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Same palette as trip-trace-android-app's theme (dark, night-navigation
+   aesthetic) — background/surface/surfaceVariant/primary/secondary/tertiary
+   are the exact values from the Android app; on-surface/on-surface-variant/
+   error are reasonable dark-theme defaults not explicitly specified there. */
+@theme {
+  --color-background: #12151c;
+  --color-surface: #1a2030;
+  --color-surface-variant: #232833;
+  --color-primary: #378add;
+  --color-secondary: #ef9f27;
+  --color-tertiary: #1d9e75;
+  --color-on-surface: #e8eaed;
+  --color-on-surface-variant: #9aa3b2;
+  --color-error: #f2555a;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+}
