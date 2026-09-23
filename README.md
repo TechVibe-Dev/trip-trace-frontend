@@ -6,6 +6,13 @@ Le pega a la misma API (`trip-trace-api`) que la app y el bot — es un cliente 
 
 React + TypeScript + Vite, con Tailwind CSS. Mismo esquema de colores oscuro que la app Android (fondo `#12151C`, superficies `#1A2030`/`#232833`, primario `#378ADD`, secundario `#EF9F27`, terciario `#1D9E75`).
 
+## Qué tiene
+
+- **Login** contra `trip-trace-api`.
+- **Dashboard**: stats agregadas (viajes totales, completados, distancia, velocidad promedio) y un gráfico de distancia por viaje.
+- **Viajes**: todos los viajes del usuario, con tabs para filtrar por estado.
+- **Detalle de viaje**: mapa (Leaflet + OpenStreetMap, sin API key) con origen/destino/ruta, stats completos, y los tramos lentos/rápidos calculados por la API para viajes completados.
+
 ## Setup
 
 ```bash
@@ -18,10 +25,11 @@ npm run dev
 
 ## Estructura
 
-- `src/api/` — cliente HTTP hacia `trip-trace-api` (auth, trips)
+- `src/api/` — cliente HTTP hacia `trip-trace-api` (auth, trips, segments)
 - `src/auth/` — contexto de sesión, token persistido en `localStorage`
-- `src/pages/` — Login, Dashboard, Historial
-- `src/components/` — layout compartido, tarjetas de estadísticas, ruta protegida
+- `src/pages/` — Login, Dashboard, Viajes, Detalle de viaje
+- `src/components/` — layout compartido, tarjetas de estadísticas, mapa de viaje, ruta protegida
+- `src/utils/polyline.ts` — decodificador del encoded polyline de Google (usado por `planned_route_polyline`)
 
 ## Ramas y releases
 
