@@ -37,3 +37,17 @@ export interface TripSegment {
   end_time: string
   avg_speed: number
 }
+
+// Mirrors the API's GpsPointRead (GET /trips/{id}/gps-points) — the trip's
+// actually recorded path, as opposed to planned_route_polyline (Google's
+// suggested route at creation time).
+export interface GpsPoint {
+  id: number
+  trip_id: string
+  lat: number
+  lng: number
+  speed: number | null
+  accuracy: number | null
+  bearing: number | null
+  recorded_at: string
+}
