@@ -18,3 +18,14 @@ export const SEGMENT_COLORS: Record<TripSegment['segment_type'], string> = {
   NORMAL: 'bg-surface-variant text-on-surface-variant',
   FAST: 'bg-tertiary/20 text-tertiary',
 }
+
+// Actual hex values (not Tailwind classes) for coloring each segment's
+// stretch of the route on the map — Leaflet's Polyline color prop needs a
+// real CSS color, not a class name. Matches the app's own palette:
+// secondary (amber) for slow, primary (blue) for normal, tertiary (green)
+// for fast.
+export const SEGMENT_MAP_COLORS: Record<TripSegment['segment_type'], string> = {
+  SLOW: '#EF9F27',
+  NORMAL: '#378ADD',
+  FAST: '#1D9E75',
+}
