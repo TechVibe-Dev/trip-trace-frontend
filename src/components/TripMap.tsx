@@ -37,18 +37,44 @@ function FitBounds({ positions }: { positions: [number, number][] }) {
 // start/end lat/lng + start/end time; matching each point's recorded_at
 // against that time range assigns it to the right segment. ISO 8601
 // timestamps compare correctly as plain strings, no Date parsing needed.
+//
+// Each segment "owns" only its own points (compute_trip_segments doesn't
+// share boundary points between consecutive segments) — drawing each
+// segment's line from just its own points leaves a visible gap between one
+// segment's last point and the next segment's first. Appending the next
+// segment's first point to the current segment's line closes that gap: the
+// two lines then touch exactly at that shared point instead of stopping
+// short of each other.
 function groupPointsBySegment(
   points: GpsPoint[],
   segments: TripSegment[],
 ): { segmentType: TripSegment['segment_type']; positions: [number, number][] }[] {
-  return segments
-    .map((segment) => ({
-      segmentType: segment.segment_type,
-      positions: points
-        .filter((point) => point.recorded_at >= segment.start_time && point.recorded_at <= segment.end_time)
-        .map((point): [number, number] => [point.lat, point.lng]),
-    }))
-    .filter((group) => group.positions.length > 1)
+  const groups: { segmentType: TripSegment['segment_type']; positions: [number, number][] }[] = []
+
+  segments.forEach((segment, index) => {
+    const segmentPoints = points.filter(
+      (point) => point.recorded_at >= segment.start_time && point.recorded_at <= segment.end_time,
+    )
+    if (segmentPoints.length === 0) return
+
+    const positions = segmentPoints.map((point): [number, number] => [point.lat, point.lng])
+
+    const nextSegment = segments[index + 1]
+    const bridgePoint = nextSegment
+      ? points.find(
+          (point) => point.recorded_at >= nextSegment.start_time && point.recorded_at <= nextSegment.end_time,
+        )
+      : undefined
+    if (bridgePoint) {
+      positions.push([bridgePoint.lat, bridgePoint.lng])
+    }
+
+    if (positions.length > 1) {
+      groups.push({ segmentType: segment.segment_type, positions })
+    }
+  })
+
+  return groups
 }
 
 export function TripMap({
