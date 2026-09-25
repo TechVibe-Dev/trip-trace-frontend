@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
-import { getTrip, getTripSegments } from '../api/trips'
-import type { Trip, TripSegment } from '../types/trip'
+import { getTrip, getTripSegments, getTripGpsPoints } from '../api/trips'
+import type { Trip, TripSegment, GpsPoint } from '../types/trip'
 import { Layout } from '../components/Layout'
 import { TripMap } from '../components/TripMap'
-import { STATUS_LABELS, SEGMENT_LABELS, SEGMENT_COLORS } from '../constants/trip'
+import { STATUS_LABELS } from '../constants/trip'
 
 export function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>()
   const { token } = useAuth()
   const [trip, setTrip] = useState<Trip | null>(null)
   const [segments, setSegments] = useState<TripSegment[]>([])
+  const [gpsPoints, setGpsPoints] = useState<GpsPoint[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -24,7 +25,14 @@ export function TripDetailPage() {
       .then((loadedTrip) => {
         setTrip(loadedTrip)
         if (loadedTrip.status === 'COMPLETED') {
-          return getTripSegments(token, tripId).then(setSegments)
+          // Segments and the real recorded path — see TripMap, which draws
+          // the route colored per-segment instead of the planned route.
+          return Promise.all([getTripSegments(token, tripId), getTripGpsPoints(token, tripId)]).then(
+            ([loadedSegments, loadedPoints]) => {
+              setSegments(loadedSegments)
+              setGpsPoints(loadedPoints)
+            },
+          )
         }
         return undefined
       })
@@ -56,7 +64,7 @@ export function TripDetailPage() {
           </div>
 
           <div className="mb-6">
-            <TripMap trip={trip} />
+            <TripMap trip={trip} gpsPoints={gpsPoints} segments={segments} />
           </div>
 
           <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -77,29 +85,6 @@ export function TripDetailPage() {
               value={trip.avg_speed != null ? `${trip.avg_speed.toFixed(1)} km/h` : '—'}
             />
           </div>
-
-          {segments.length > 0 && (
-            <div>
-              <h2 className="mb-3 text-sm font-medium text-on-surface-variant">Tramos</h2>
-              <div className="flex flex-col gap-2">
-                {segments.map((segment, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between rounded-lg bg-surface px-4 py-2"
-                  >
-                    <span
-                      className={`rounded px-2 py-0.5 text-xs font-medium ${SEGMENT_COLORS[segment.segment_type]}`}
-                    >
-                      {SEGMENT_LABELS[segment.segment_type]}
-                    </span>
-                    <span className="text-sm text-on-surface-variant">
-                      {segment.avg_speed.toFixed(1)} km/h
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </>
       )}
     </Layout>
