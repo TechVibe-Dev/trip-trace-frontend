@@ -9,6 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Trip detail map: a "Mostrar ruta planeada" checkbox that also draws the planned route (`planned_route_polyline`, dashed gray, under the real one) to compare the two — the map re-fits to include both while it's on. Trips with no recorded points yet (not run) show their planned route directly, with no checkbox; since the real-route change above, those trips showed no route at all. Closes `trip-trace-frontend#11`. ([#13](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/13))
 - Trip detail map now draws the trip's actual recorded route (`GET /trips/{id}/gps-points`), colored per-segment (SLOW/NORMAL/FAST, from `GET /trips/{id}/segments`) instead of a single solid color — replaces the previous `planned_route_polyline` display and the separate Tramos list below the map. ([trip-trace-frontend#6](https://github.com/TechVibe-Dev/trip-trace-frontend/issues/6))
 - Added a CI workflow that runs `npm ci` and `npm run build` (type-check + production build) on push/PR. ([#2](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/2))
 - Configured Dependabot (npm + github-actions), monthly. ([#2](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/2))
