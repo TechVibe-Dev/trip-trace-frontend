@@ -17,3 +17,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Dashboard page: stats across all trips (total, completed, distance, avg speed) and a distance-per-trip bar chart (Recharts) for the last 10 completed trips.
 - Viajes page: every trip regardless of status, with client-side filter tabs (Todos/Planeados/En curso/Completados). Replaces the initial Historial page.
 - Trip detail page (`/viajes/:tripId`): map (Leaflet + OpenStreetMap), full stats, and the real route colored by segment for completed trips.
+
+### Changed
+
+- Login now tells apart wrong credentials, being rate limited (429: "Demasiados intentos. Probá de nuevo en N segundos", using the `retry_after_seconds` field the API sends since `trip-trace-api#67`) and connection/server errors, instead of showing "wrong credentials" for everything. Closes `trip-trace-frontend#10`. ([#12](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/12))

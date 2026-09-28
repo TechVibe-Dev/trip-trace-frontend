@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './client'
+import { API_BASE_URL, errorFromResponse } from './client'
 
 interface LoginResponse {
   access_token: string
@@ -19,8 +19,12 @@ export async function login(email: string, password: string): Promise<string> {
     body,
   })
 
+  // Throws an ApiError carrying the status (and, for a 429, the wait time) —
+  // this used to throw a plain Error for everything, so the login page had no
+  // way to tell a wrong password from being rate limited or the server being
+  // down.
   if (!response.ok) {
-    throw new Error('Credenciales invalidas')
+    throw await errorFromResponse(response)
   }
 
   const data: LoginResponse = await response.json()
