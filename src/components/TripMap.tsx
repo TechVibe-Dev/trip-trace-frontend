@@ -1,12 +1,13 @@
-import { useEffect, useMemo } from 'react'
-import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet'
+import { useEffect, useMemo, useState } from 'react'
+import { MapContainer, TileLayer, Marker, Polyline, Pane, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import type { Trip, TripSegment, GpsPoint } from '../types/trip'
-import { SEGMENT_LABELS, SEGMENT_MAP_COLORS } from '../constants/trip'
+import { PLANNED_ROUTE_MAP_COLOR, SEGMENT_LABELS, SEGMENT_MAP_COLORS } from '../constants/trip'
+import { decodePolyline } from '../utils/polyline'
 
 // Leaflet's default marker icons reference relative image paths that don't
 // resolve correctly through a bundler (well-known Leaflet + Vite/webpack
@@ -86,6 +87,8 @@ export function TripMap({
   gpsPoints?: GpsPoint[]
   segments?: TripSegment[]
 }) {
+  const [showPlanned, setShowPlanned] = useState(false)
+
   const segmentGroups = useMemo(() => groupPointsBySegment(gpsPoints, segments), [gpsPoints, segments])
 
   // Points not covered by any segment (e.g. no speed reading, so
@@ -99,10 +102,38 @@ export function TripMap({
     [gpsPoints, hasSegmentColoring],
   )
 
-  const origin: [number, number] = [trip.origin_lat, trip.origin_lng]
-  const destination: [number, number] = [trip.destination_lat, trip.destination_lng]
-  const allRoutePositions = gpsPoints.map((point): [number, number] => [point.lat, point.lng])
-  const boundsPoints = allRoutePositions.length > 0 ? allRoutePositions : [origin, destination]
+  // The route Google suggested when the trip was created, decoded once per
+  // polyline. Trips whose calculate-route call failed have none.
+  const plannedPositions = useMemo<[number, number][]>(
+    () => (trip.planned_route_polyline ? decodePolyline(trip.planned_route_polyline) : []),
+    [trip.planned_route_polyline],
+  )
+  const hasPlannedRoute = plannedPositions.length > 1
+  const hasRealRoute = gpsPoints.length > 0
+  // The checkbox only makes sense when there's something to compare against.
+  // A trip with no recorded points (one that hasn't run yet) has nothing else
+  // to draw, so its planned route is simply shown, with no checkbox.
+  const canTogglePlanned = hasPlannedRoute && hasRealRoute
+  const plannedVisible = hasPlannedRoute && (!hasRealRoute || showPlanned)
+
+  const { origin_lat, origin_lng, destination_lat, destination_lng } = trip
+  const origin: [number, number] = [origin_lat, origin_lng]
+  const destination: [number, number] = [destination_lat, destination_lng]
+
+  // Fit the view to the real route when there is one, plus the planned route
+  // while it's visible (it can wander outside the real one — a detour, or a
+  // trip ended early). Memoized so the map only re-fits when these inputs
+  // actually change, e.g. when the checkbox is toggled.
+  const boundsPoints = useMemo<[number, number][]>(() => {
+    const realPositions = gpsPoints.map((point): [number, number] => [point.lat, point.lng])
+    const positions = plannedVisible ? [...realPositions, ...plannedPositions] : realPositions
+    return positions.length > 0
+      ? positions
+      : [
+          [origin_lat, origin_lng],
+          [destination_lat, destination_lng],
+        ]
+  }, [gpsPoints, plannedVisible, plannedPositions, origin_lat, origin_lng, destination_lat, destination_lng])
 
   return (
     <div>
@@ -114,6 +145,21 @@ export function TripMap({
           />
           <Marker position={origin} />
           <Marker position={destination} />
+          {/* Its own pane, just below Leaflet's default overlay pane (z-index
+              400), so the planned route always sits UNDER the real one —
+              otherwise, toggling the checkbox on after the real route is
+              already drawn would add the dashed line on top of it. */}
+          {plannedVisible && (
+            <Pane name="plannedRoute" style={{ zIndex: 399 }}>
+              <Polyline
+                positions={plannedPositions}
+                color={PLANNED_ROUTE_MAP_COLOR}
+                weight={4}
+                opacity={0.8}
+                dashArray="8 8"
+              />
+            </Pane>
+          )}
           {segmentGroups.map((group, index) => (
             <Polyline
               key={index}
@@ -125,17 +171,38 @@ export function TripMap({
           <FitBounds positions={boundsPoints} />
         </MapContainer>
       </div>
-      {hasSegmentColoring && (
-        <div className="mt-2 flex gap-4">
-          {(Object.keys(SEGMENT_MAP_COLORS) as TripSegment['segment_type'][]).map((segmentType) => (
-            <div key={segmentType} className="flex items-center gap-1.5 text-xs text-on-surface-variant">
+      {(hasSegmentColoring || plannedVisible || canTogglePlanned) && (
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {hasSegmentColoring &&
+            (Object.keys(SEGMENT_MAP_COLORS) as TripSegment['segment_type'][]).map((segmentType) => (
+              <div key={segmentType} className="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: SEGMENT_MAP_COLORS[segmentType] }}
+                />
+                {SEGMENT_LABELS[segmentType]}
+              </div>
+            ))}
+          {plannedVisible && (
+            <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
               <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: SEGMENT_MAP_COLORS[segmentType] }}
+                className="inline-block w-5 border-t-2 border-dashed"
+                style={{ borderColor: PLANNED_ROUTE_MAP_COLOR }}
               />
-              {SEGMENT_LABELS[segmentType]}
+              Planeada
             </div>
-          ))}
+          )}
+          {canTogglePlanned && (
+            <label className="ml-auto flex cursor-pointer items-center gap-2 text-xs text-on-surface-variant">
+              <input
+                type="checkbox"
+                checked={showPlanned}
+                onChange={(event) => setShowPlanned(event.target.checked)}
+                className="accent-primary"
+              />
+              Mostrar ruta planeada
+            </label>
+          )}
         </div>
       )}
     </div>

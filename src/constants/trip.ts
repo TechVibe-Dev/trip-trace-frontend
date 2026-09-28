@@ -29,3 +29,8 @@ export const SEGMENT_MAP_COLORS: Record<TripSegment['segment_type'], string> = {
   NORMAL: '#378ADD',
   FAST: '#1D9E75',
 }
+
+// The planned route (Google's suggestion at creation time) is drawn in a
+// neutral gray, dashed, so it reads as a reference next to the real route —
+// and can't be confused with any of the three segment colors above.
+export const PLANNED_ROUTE_MAP_COLOR = '#9AA0A6'
