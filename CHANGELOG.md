@@ -21,4 +21,5 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Any authenticated API call that comes back 401 (token expired, or invalidated server-side by a password change elsewhere, `trip-trace-api#60`) now logs the user out and redirects to `/login` — previously every screen was left with a raw, uncaught error. Closes `trip-trace-frontend#8`. ([#14](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/14))
 - Login now tells apart wrong credentials, being rate limited (429: "Demasiados intentos. Probá de nuevo en N segundos", using the `retry_after_seconds` field the API sends since `trip-trace-api#67`) and connection/server errors, instead of showing "wrong credentials" for everything. Closes `trip-trace-frontend#10`. ([#12](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/12))
