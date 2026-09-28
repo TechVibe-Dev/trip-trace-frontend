@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import { useAuth } from '../auth/AuthContext'
+import { loginErrorMessage } from '../utils/authErrors'
 
 export function LoginPage() {
   const { token, login } = useAuth()
@@ -21,8 +22,8 @@ export function LoginPage() {
     try {
       await login(email, password)
       navigate('/')
-    } catch {
-      setError('No se pudo iniciar sesion. Revisa tu email y contrasena.')
+    } catch (caught) {
+      setError(loginErrorMessage(caught))
     } finally {
       setIsSubmitting(false)
     }
