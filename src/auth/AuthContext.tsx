@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { login as loginRequest } from '../api/auth'
+import { setUnauthorizedHandler } from './unauthorizedHandler'
 
 const TOKEN_STORAGE_KEY = 'triptrace_token'
 
@@ -31,6 +32,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(TOKEN_STORAGE_KEY)
     setToken(null)
   }
+
+  // Registered once, for the lifetime of the app — apiFetch calls this the
+  // moment any authenticated request comes back 401 (token expired, or
+  // invalidated server-side by a password change elsewhere, trip-trace-api#60).
+  // Clearing the token here is enough on its own: ProtectedRoute already
+  // watches token via useAuth() and redirects to /login as soon as it goes
+  // null, so no separate navigation call is needed here.
+  useEffect(() => {
+    setUnauthorizedHandler(logout)
+    return () => setUnauthorizedHandler(null)
+  }, [])
 
   return (
     <AuthContext.Provider value={{ token, isLoading, login, logout }}>

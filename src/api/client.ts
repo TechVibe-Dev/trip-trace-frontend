@@ -1,3 +1,5 @@
+import { notifyUnauthorized } from '../auth/unauthorizedHandler'
+
 export const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ?? 'https://trip-trace-api.onrender.com'
 
@@ -61,7 +63,16 @@ export async function apiFetch<T>(
   })
 
   if (!response.ok) {
-    throw await errorFromResponse(response)
+    const error = await errorFromResponse(response)
+    if (response.status === 401) {
+      // Not login/register's own 401 — those don't go through apiFetch (see
+      // api/auth.ts), and the API answers wrong credentials with 400
+      // anyway. A 401 here always means an already-authenticated request's
+      // token stopped being valid, so every screen gets the same handling
+      // instead of each one being left with a raw, uncaught ApiError.
+      notifyUnauthorized()
+    }
+    throw error
   }
 
   if (response.status === 204) {
