@@ -67,7 +67,7 @@ export function TripDetailPage() {
             <TripMap trip={trip} gpsPoints={gpsPoints} segments={segments} />
           </div>
 
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
             <StatBlock
               label="Distancia"
               value={trip.distance_km != null ? `${trip.distance_km.toFixed(1)} km` : '—'}
@@ -75,10 +75,6 @@ export function TripDetailPage() {
             <StatBlock
               label="Vel. maxima"
               value={trip.max_speed != null ? `${trip.max_speed.toFixed(1)} km/h` : '—'}
-            />
-            <StatBlock
-              label="Vel. minima"
-              value={trip.min_speed != null ? `${trip.min_speed.toFixed(1)} km/h` : '—'}
             />
             <StatBlock
               label="Vel. promedio"
