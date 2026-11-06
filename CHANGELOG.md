@@ -9,7 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
-- Trip detail: shows the name of the route chosen for the trip under the title, and draws its "pasar por" points on the map, numbered in order, with their name on hover. Trips made before custom routes, or with Google's fastest route, look the same as before. Needs trip-trace-api [#82](https://github.com/TechVibe-Dev/trip-trace-api/pull/82). ([#16](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/16))
+- Trip date and times. The Viajes list shows the date and schedule next to each trip's status: departure and arrival for completed trips (with "(+1)" when it arrives on a later day), the departure time for trips in progress, and the planned departure for planned trips. The trip detail adds Salida, Llegada and Duración to its stats. Times are in 24h format and the browser's local time zone. ([#23](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/23))
 - Trip detail map: a "Mostrar ruta planeada" checkbox that also draws the planned route (`planned_route_polyline`, dashed gray, under the real one) to compare the two — the map re-fits to include both while it's on. Trips with no recorded points yet (not run) show their planned route directly, with no checkbox; since the real-route change above, those trips showed no route at all. Closes `trip-trace-frontend#11`. ([#13](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/13))
 - Trip detail map now draws the trip's actual recorded route (`GET /trips/{id}/gps-points`), colored per-segment (SLOW/NORMAL/FAST, from `GET /trips/{id}/segments`) instead of a single solid color — replaces the previous `planned_route_polyline` display and the separate Tramos list below the map. ([trip-trace-frontend#6](https://github.com/TechVibe-Dev/trip-trace-frontend/issues/6))
 - Added a CI workflow that runs `npm ci` and `npm run build` (type-check + production build) on push/PR. ([#2](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/2))
@@ -22,5 +22,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Trip detail page: removed the "Vel. minima" stat — it is always 0 km/h (the slowest GPS sample is always a stop), so it carried no information. The stats row is now three blocks (Distancia, Vel. maxima, Vel. promedio). ([#17](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/17))
 - Any authenticated API call that comes back 401 (token expired, or invalidated server-side by a password change elsewhere, `trip-trace-api#60`) now logs the user out and redirects to `/login` — previously every screen was left with a raw, uncaught error. Closes `trip-trace-frontend#8`. ([#14](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/14))
 - Login now tells apart wrong credentials, being rate limited (429: "Demasiados intentos. Probá de nuevo en N segundos", using the `retry_after_seconds` field the API sends since `trip-trace-api#67`) and connection/server errors, instead of showing "wrong credentials" for everything. Closes `trip-trace-frontend#10`. ([#12](https://github.com/TechVibe-Dev/trip-trace-frontend/pull/12))
