@@ -6,6 +6,7 @@ import type { Trip, TripSegment, GpsPoint } from '../types/trip'
 import { Layout } from '../components/Layout'
 import { TripMap } from '../components/TripMap'
 import { STATUS_LABELS } from '../constants/trip'
+import { formatDateTime, formatDuration } from '../utils/tripTimes'
 
 export function TripDetailPage() {
   const { tripId } = useParams<{ tripId: string }>()
@@ -54,11 +55,11 @@ export function TripDetailPage() {
 
       {trip && (
         <>
-          <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-xl font-medium">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h1 className="min-w-0 text-xl font-medium">
               {trip.origin_name} → {trip.destination_name}
             </h1>
-            <span className="rounded-full bg-surface-variant px-3 py-1 text-xs text-on-surface-variant">
+            <span className="shrink-0 rounded-full bg-surface-variant px-3 py-1 text-xs text-on-surface-variant">
               {STATUS_LABELS[trip.status]}
             </span>
           </div>
@@ -68,6 +69,17 @@ export function TripDetailPage() {
           </div>
 
           <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <StatBlock
+              label={trip.status === 'PLANNED' ? 'Salida planeada' : 'Salida'}
+              value={formatDateTime(
+                trip.status === 'PLANNED' ? trip.planned_departure_at : trip.started_at,
+              )}
+            />
+            <StatBlock
+              label="Llegada"
+              value={trip.status === 'IN_PROGRESS' ? 'En curso' : formatDateTime(trip.ended_at)}
+            />
+            <StatBlock label="Duración" value={formatDuration(trip.started_at, trip.ended_at)} />
             <StatBlock
               label="Distancia"
               value={trip.distance_km != null ? `${trip.distance_km.toFixed(1)} km` : '—'}
@@ -91,7 +103,7 @@ function StatBlock({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg bg-surface px-4 py-3">
       <p className="text-xs text-on-surface-variant">{label}</p>
-      <p className="text-lg font-medium">{value}</p>
+      <p className="whitespace-nowrap text-lg font-medium tabular-nums">{value}</p>
     </div>
   )
 }
