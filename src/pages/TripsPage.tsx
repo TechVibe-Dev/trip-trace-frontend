@@ -5,6 +5,7 @@ import { listTrips } from '../api/trips'
 import type { Trip } from '../types/trip'
 import { Layout } from '../components/Layout'
 import { STATUS_LABELS } from '../constants/trip'
+import { formatTripSchedule } from '../utils/tripTimes'
 
 const FILTERS: { label: string; value: Trip['status'] | 'ALL' }[] = [
   { label: 'Todos', value: 'ALL' },
@@ -60,23 +61,29 @@ export function TripsPage() {
       )}
 
       <div className="flex flex-col gap-2">
-        {filteredTrips.map((trip) => (
-          <Link
-            key={trip.id}
-            to={`/viajes/${trip.id}`}
-            className="flex items-center justify-between rounded-lg bg-surface px-4 py-3 hover:bg-surface-variant"
-          >
-            <div>
-              <p className="font-medium">
-                {trip.origin_name} → {trip.destination_name}
+        {filteredTrips.map((trip) => {
+          const schedule = formatTripSchedule(trip)
+          return (
+            <Link
+              key={trip.id}
+              to={`/viajes/${trip.id}`}
+              className="flex items-center justify-between gap-4 rounded-lg bg-surface px-4 py-3 hover:bg-surface-variant"
+            >
+              <div className="min-w-0">
+                <p className="font-medium">
+                  {trip.origin_name} → {trip.destination_name}
+                </p>
+                <p className="flex flex-wrap gap-x-1 text-sm text-on-surface-variant">
+                  <span className="whitespace-nowrap">{STATUS_LABELS[trip.status]}</span>
+                  {schedule && <span className="whitespace-nowrap">· {schedule}</span>}
+                </p>
+              </div>
+              <p className="shrink-0 whitespace-nowrap text-sm text-on-surface-variant">
+                {trip.distance_km != null ? `${trip.distance_km.toFixed(1)} km` : '—'}
               </p>
-              <p className="text-sm text-on-surface-variant">{STATUS_LABELS[trip.status]}</p>
-            </div>
-            <p className="text-sm text-on-surface-variant">
-              {trip.distance_km != null ? `${trip.distance_km.toFixed(1)} km` : '—'}
-            </p>
-          </Link>
-        ))}
+            </Link>
+          )
+        })}
       </div>
     </Layout>
   )
