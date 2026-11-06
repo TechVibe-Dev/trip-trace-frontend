@@ -11,6 +11,13 @@ export interface Trip {
   destination_lat: number
   destination_lng: number
   planned_route_polyline: string | null
+  // Points the user chose to drive through ("pasar por"), in order. Empty or
+  // null when Google picked the route, or after the user let go of the
+  // chosen route mid-trip (route_name is kept either way). Optional because
+  // API versions before custom routes don't send these fields.
+  via_points?: ViaPoint[] | null
+  route_name?: string | null
+  saved_route_id?: string | null
   status: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
   planned_departure_at: string | null
   desired_arrival_at: string | null
@@ -23,6 +30,12 @@ export interface Trip {
   avg_speed: number | null
   created_at: string
   updated_at: string
+}
+
+export interface ViaPoint {
+  name: string | null
+  lat: number
+  lng: number
 }
 
 // Mirrors the API's TripSegmentRead (GET /trips/{id}/segments) — slow/fast

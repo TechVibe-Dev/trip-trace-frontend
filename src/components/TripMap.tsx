@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Polyline, Pane, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Polyline, Pane, CircleMarker, Tooltip, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
@@ -145,6 +145,18 @@ export function TripMap({
           />
           <Marker position={origin} />
           <Marker position={destination} />
+          {/* The points the user chose to drive through, numbered in order,
+              so the planned route can be read against the choice behind it. */}
+          {(trip.via_points ?? []).map((point, index) => (
+            <CircleMarker
+              key={`${point.lat},${point.lng}`}
+              center={[point.lat, point.lng]}
+              radius={6}
+              pathOptions={{ color: PLANNED_ROUTE_MAP_COLOR, fillOpacity: 0.9 }}
+            >
+              <Tooltip>{`${index + 1}. ${point.name ?? 'Punto de paso'}`}</Tooltip>
+            </CircleMarker>
+          ))}
           {/* Its own pane, just below Leaflet's default overlay pane (z-index
               400), so the planned route always sits UNDER the real one —
               otherwise, toggling the checkbox on after the real route is

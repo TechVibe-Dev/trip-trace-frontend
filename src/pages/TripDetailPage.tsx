@@ -56,9 +56,14 @@ export function TripDetailPage() {
       {trip && (
         <>
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h1 className="min-w-0 text-xl font-medium">
-              {trip.origin_name} → {trip.destination_name}
-            </h1>
+            <div className="min-w-0">
+              <h1 className="text-xl font-medium">
+                {trip.origin_name} → {trip.destination_name}
+              </h1>
+              {trip.route_name && (
+                <p className="text-sm text-on-surface-variant">Ruta: {trip.route_name}</p>
+              )}
+            </div>
             <span className="shrink-0 rounded-full bg-surface-variant px-3 py-1 text-xs text-on-surface-variant">
               {STATUS_LABELS[trip.status]}
             </span>
